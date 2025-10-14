@@ -7,7 +7,7 @@ from glob import glob
 from tqdm import tqdm
 
 def preprocess_dots_and_rename(root_dir):
-    """Invert and binarize all -DOTS.jpg, save as _labeled.png, and rename all .jpg to .JPG"""
+    """Invert and binarize all -DOTS.jpg, save as _labels.png, and rename all .jpg to .JPG"""
     for dirpath, _, filenames in os.walk(root_dir):
         for fname in filenames:
             fpath = os.path.join(dirpath, fname)
@@ -24,7 +24,7 @@ def preprocess_dots_and_rename(root_dir):
                 _, bw = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
                 # Save as 3-channel
                 bw3 = cv2.merge([bw, bw, bw])
-                out_name = fname.replace('-DOTS.jpg', '_labeled.png')
+                out_name = fname.replace('-DOTS.jpg', '_labels.png')
                 out_path = os.path.join(dirpath, out_name)
                 cv2.imwrite(out_path, bw3)
             # Rename .jpg to .JPG
@@ -41,7 +41,7 @@ def find_image_mask_pairs(root_dir):
         if not os.path.isdir(folder_path):
             continue
         raw_img_path = os.path.join(folder_path, f"{folder}.JPG")
-        mask_img_path = os.path.join(folder_path, f"{folder}_labeled.png")
+        mask_img_path = os.path.join(folder_path, f"{folder}_labels.png")
         if os.path.exists(raw_img_path) and os.path.exists(mask_img_path):
             print(f"Found pair: {folder}")
             pairs.append((raw_img_path, mask_img_path, folder))
@@ -107,7 +107,7 @@ def split_and_annotate(img_crop, centers, out_dir, out_dir_vis, prefix, n_split=
                 seg_vis = seg.copy()
                 for pt in seg_points:
                     cv2.circle(seg_vis, (pt['x']-x1, pt['y']-y1), 5, (0,0,255), -1)
-                seg_vis_path = os.path.join(out_dir_vis, f"seg_{i}_{j}_labeled.jpg")
+                seg_vis_path = os.path.join(out_dir_vis, f"seg_{i}_{j}_labels.jpg")
                 cv2.imwrite(seg_vis_path, seg_vis)
                 # Save csv for this seg
                 seg_df = pd.DataFrame(seg_points)
